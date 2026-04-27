@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoldssunArt-디지털 화방 v7.4</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & External Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Nanum+Pen+Script&family=Jua&display=swap" rel="stylesheet">
+    <!-- 나눔스퀘어, 머니그라피, 프리텐다드 CDN -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2311@1.0/Moneygraphy-Rounded.css">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .serif-font {
+            font-family: 'Nanum Myeongjo', serif;
+        }
+        canvas {
+            box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.4);
+            background-color: white;
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 0.5rem;
+        }
+        
+        button:active {
+            transform: scale(0.95) !important;
+            transition: transform 0.1s;
+        }
+
+        .selected {
+            border-color: #f59e0b !important;
+            background-color: #fffbeb !important;
+            color: #92400e !important;
+            box-shadow: 0 0 0 2px #f59e0b !important;
+            font-weight: bold !important;
+        }
+        
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-active {
+            animation: pulse-red 2s infinite;
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+        }
+
+        #canvas-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e5e7eb;
+            border-radius: 2rem;
+            overflow: hidden;
+            border: 3px solid #d1d5db;
+            position: relative;
+        }
+
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        /* 폰트 명시적 정의 */
+        .font-myeongjo { font-family: 'Nanum Myeongjo', serif; }
+        .font-square { font-family: 'NanumSquare', sans-serif; }
+        .font-pen { font-family: 'Nanum Pen Script', cursive; }
+        .font-pretendard { font-family: 'Pretendard', sans-serif; }
+        .font-jua { font-family: 'Jua', sans-serif; }
+        .font-moneygraphy { font-family: 'Moneygraphy-Rounded', sans-serif; }
+    </style>
+</head>
+<body class="bg-stone-100 min-h-screen flex flex-col items-center py-6">
+
+    <!-- Header -->
+    <header class="text-center mb-6 w-full px-4 relative max-w-6xl mx-auto">
+        <h1 class="text-xl md:text-2xl font-bold text-stone-800 serif-font mb-2">🎨 GoldssunArt-디지털 화방 v7.4</h1>
+    </header>
+
+    <main class="w-full max-w-7xl flex flex-col lg:flex-row gap-8 px-4 flex-1">
+        
+        <!-- Left Side: Canvas Area -->
+        <div class="flex-1 flex flex-col items-center bg-white p-6 rounded-3xl shadow-lg border border-stone-200">
+            <div id="canvas-container" style="aspect-ratio: 16/9;">
+                <canvas id="mainCanvas"></canvas>
+                <div id="placeholder-text" class="absolute pointer-events-none text-stone-400 text-xl font-bold hidden">
+                    사진을 불러오거나 배경을 선택하세요
+                </div>
+            </div>
+            
+            <p class="mt-4 text-stone-500 text-sm font-medium">※ 버튼을 누르거나 단어를 검색하면 새로운 사진을 가져옵니다.</p>
+            
+            <div class="mt-6 flex gap-3 w-full justify-center">
+                <button onclick="setCanvasRatio('16:9', this)" class="ratio-btn selected px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm">16:9 (TV)</button>
+                <button onclick="setCanvasRatio('4:3', this)" class="ratio-btn px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm">4:3 (사진)</button>
+                <button onclick="setCanvasRatio('9:16', this)" class="ratio-btn px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm">9:16 (폰)</button>
+            </div>
+        </div>
+
+        <!-- Right Side: Controls -->
+        <div class="w-full lg:w-96 flex flex-col gap-6">
+            
+            <!-- 1. Image Source & Search -->
+            <div class="bg-white p-5 rounded-2xl shadow-md border border-stone-100">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-stone-700 flex items-center">
+                        <span class="bg-amber-100 text-amber-800 rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">1</span>
+                        사진 선택 및 검색
+                    </h2>
+                    <button onclick="openSettingsModal()" class="text-stone-400 hover:text-stone-600 font-bold text-sm flex items-center gap-1" title="API 키 입력">
+                        ⚙️ API키
+                    </button>
+                </div>
+                
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 shadow-sm">
+                    <label class="block text-xs font-bold text-amber-700 mb-2">🔍 원하는 사진 검색 (예: 바다, 호수, 꽃)</label>
+                    <div class="flex gap-1">
+                        <input type="text" id="pixabayQuery" placeholder="찾고 싶은 단어 입력..." class="flex-1 p-2 border border-amber-300 rounded-lg text-sm outline-none focus:border-amber-500">
+                        <button onclick="searchCustomBackground()" class="bg-amber-500 hover:bg-amber-600 text-white px-4 rounded-lg font-bold text-sm transition">찾기</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-700 p-5 rounded-xl text-center border-2 border-blue-200 transition flex flex-col items-center justify-center shadow-sm">
+                        <span class="text-4xl mb-2">🖼️</span>
+                        <span class="font-bold text-base">내 갤러리</span>
+                        <input type="file" id="imageLoader" accept="image/*" class="hidden">
+                    </label>
+                    <button onclick="openCameraModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 p-5 rounded-xl text-center border-2 border-rose-200 transition flex flex-col items-center justify-center shadow-sm">
+                        <span class="text-4xl mb-2">📷</span>
+                        <span class="font-bold text-base">카메라 촬영</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Art Filters -->
+            <div class="bg-white p-5 rounded-2xl shadow-md border border-stone-100">
+                <h2 class="text-xl font-bold text-stone-700 mb-4 flex items-center">
+                    <span class="bg-purple-100 text-purple-800 rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">2</span>
+                    화풍 바꾸기
+                </h2>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="applyFilter('none', this)" class="filter-btn selected p-2 rounded-lg bg-gray-50 text-xs border-2 border-transparent">원본</button>
+                    <button onclick="applyFilter('gogh', this)" class="filter-btn p-2 rounded-lg bg-blue-50 text-xs border-2 border-transparent">반고흐</button>
+                    <button onclick="applyFilter('munch', this)" class="filter-btn p-2 rounded-lg bg-orange-50 text-xs border-2 border-transparent">뭉크</button>
+                    <button onclick="applyFilter('baroque', this)" class="filter-btn p-2 rounded-lg bg-amber-50 text-xs border-2 border-transparent">바로크</button>
+                    <button onclick="applyFilter('magritte', this)" class="filter-btn p-2 rounded-lg bg-indigo-50 text-xs border-2 border-transparent">마그리트</button>
+                    <button onclick="applyFilter('water', this)" class="filter-btn p-2 rounded-lg bg-sky-50 text-xs border-2 border-transparent">수채화</button>
+                    <button onclick="applyFilter('korean', this)" class="filter-btn p-2 rounded-lg bg-stone-100 text-xs border-2 border-transparent">한국화</button>
+                    <button onclick="applyFilter('pencil', this)" class="filter-btn p-2 rounded-lg bg-yellow-50 text-xs border-2 border-transparent">색연필</button>
+                    <button onclick="applyFilter('pastel', this)" class="filter-btn p-2 rounded-lg bg-pink-50 text-xs border-2 border-transparent">파스텔</button>
+                </div>
+            </div>
+
+            <!-- 3. Text Controls -->
+            <div class="bg-white p-5 rounded-2xl shadow-md border border-stone-100">
+                <h2 class="text-xl font-bold text-stone-700 mb-4 flex items-center">
+                    <span class="bg-pink-100 text-pink-800 rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">3</span>
+                    글쓰기 및 AI 도우미
+                </h2>
+                
+                <div class="flex gap-2 mb-4">
+                    <button id="aiBtn" onclick="generateAIText()" class="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white p-3 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2">
+                        <span>✨ AI 글 추천</span>
+                    </button>
+                    <button id="mainMicBtn" onclick="toggleSpeech('userText', 'mainMicBtn')" class="bg-white border-2 border-stone-200 text-stone-500 p-3 rounded-xl shadow-sm" title="음성 입력">
+                        <span class="text-2xl">🎤</span>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <textarea id="userText" rows="4" placeholder="🎤 마이크를 누르거나 직접 써보세요!" 
+                           class="w-full p-3 border-2 border-stone-300 rounded-lg text-lg focus:border-amber-500 outline-none resize-none bg-stone-50"></textarea>
+                    
+                    <div>
+                        <label class="block text-stone-600 font-bold mb-2 text-sm">🔤 글씨체 선택</label>
+                        <div class="grid grid-cols-2 gap-2" id="fontButtons">
+                            <button onclick="setTextFont('Nanum Myeongjo', this)" class="font-btn p-2 bg-white border border-stone-300 rounded text-sm font-myeongjo">나눔명조</button>
+                            <button onclick="setTextFont('NanumSquare', this)" class="font-btn p-2 bg-white border border-stone-300 rounded text-sm font-square">나눔스퀘어</button>
+                            <button onclick="setTextFont('Nanum Pen Script', this)" class="font-btn selected p-2 bg-white border border-stone-300 rounded text-sm font-pen">나눔 손글씨</button>
+                            <button onclick="setTextFont('Pretendard', this)" class="font-btn p-2 bg-white border border-stone-300 rounded text-sm font-pretendard">Pretendard</button>
+                            <button onclick="setTextFont('Jua', this)" class="font-btn p-2 bg-white border border-stone-300 rounded text-sm font-jua">배민체</button>
+                            <button onclick="setTextFont('Moneygraphy-Rounded', this)" class="font-btn p-2 bg-white border border-stone-300 rounded text-sm font-moneygraphy">머니그라피(토스)</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="receiverInput" placeholder="To. 받는 분" class="w-full p-2 border border-stone-300 rounded-md outline-none text-sm">
+                        <input type="text" id="senderInput" placeholder="From. 보내는 분" class="w-full p-2 border border-stone-300 rounded-md outline-none text-sm">
+                    </div>
+
+                    <div class="space-y-2">
+                        <input type="text" id="authorInput" placeholder="🖋️ 지은이 (예: 골드썬)" class="w-full p-2 border border-stone-300 rounded-md outline-none text-sm">
+                        <input type="text" id="titleInput" placeholder="🎬 제목을 입력하세요 (본문 위 배치)" class="w-full p-2 border border-stone-300 rounded-md outline-none text-sm">
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="text-stone-600 font-bold w-12 text-xs">크기</span>
+                        <input type="range" id="textSize" min="16" max="150" value="45" class="flex-1 h-3 bg-stone-200 rounded-lg appearance-none cursor-pointer">
+                        <span id="textSizeDisplay" class="text-stone-600 font-bold w-8 text-right text-xs">45</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 justify-between">
+                            <span class="text-stone-600 font-bold w-12 text-xs">색상</span>
+                            <div class="flex gap-2 overflow-x-auto pb-1">
+                                <button onclick="setTextColor('#000000')" class="w-8 h-8 rounded-full bg-black border-2 border-white shadow-sm"></button>
+                                <button onclick="setTextColor('#FFFFFF')" class="w-8 h-8 rounded-full bg-white border-2 border-stone-300 shadow-sm"></button>
+                                <button onclick="setTextColor('#EF4444')" class="w-8 h-8 rounded-full bg-red-500 border-2 border-white shadow-sm"></button>
+                                <button onclick="setTextColor('#F59E0B')" class="w-8 h-8 rounded-full bg-amber-500 border-2 border-white shadow-sm"></button>
+                                <button onclick="setTextColor('#10B981')" class="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></button>
+                                <button onclick="setTextColor('#3B82F6')" class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow-sm"></button>
+                                <input type="color" id="textColorPicker" class="w-8 h-8 p-0 border-0 rounded-full overflow-hidden cursor-pointer" value="#ffffff">
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 justify-between bg-stone-50 p-2 rounded-lg border border-stone-200">
+                            <span class="text-stone-600 font-bold w-20 text-xs">글씨 테두리</span>
+                            <input type="range" id="outlineSize" min="0" max="15" value="2" class="flex-1 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer">
+                            <input type="color" id="outlineColorPicker" class="w-8 h-8 p-0 border-0 rounded-full overflow-hidden cursor-pointer" value="#000000">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Save & Share Controls -->
+            <div class="bg-stone-800 p-5 rounded-2xl shadow-lg space-y-3">
+                <button onclick="saveImage()" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-5 rounded-xl font-bold transition flex flex-col items-center justify-center gap-1 shadow-md">
+                    <span class="text-xl font-bold">💾 완성된 작품 저장하기</span>
+                </button>
+                <button onclick="shareToKakao()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-stone-900 py-4 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-md">
+                    <span class="text-2xl">💬</span>
+                    <span class="text-lg font-bold">카카오톡으로 보내기</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Copyright Notice -->
+    <footer class="w-full py-10 mt-10 border-t border-stone-200 bg-stone-50">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
+            <p class="text-stone-600 text-sm md:text-base font-bold tracking-tight">
+                © 2026 김명구 (Goldssun). All Rights Reserved.
+            </p>
+            <p class="text-stone-400 text-xs md:text-sm font-medium leading-relaxed">
+                본 'GoldssunArt-디지털 화방' 서비스의 모든 권리(저작권·라이선스)는 <b class="text-stone-500">김명구</b>에게 있습니다.<br>
+                무단 복제·재배포·도용·상업적 이용을 금하며, 위반 시 관련 법령에 따라 법적 책임을 물을 수 있습니다.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div id="saveMessage" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-10 rounded-3xl text-center shadow-2xl max-w-sm w-full mx-4">
+            <div class="text-5xl mb-4">🎉</div>
+            <h3 class="text-2xl font-bold mb-3 text-stone-800">멋진 작품이 저장되었습니다!</h3>
+            <p class="text-stone-500 text-sm leading-relaxed">
+                📱 휴대폰의 <b class="text-stone-700">'갤러리'</b> 또는 <b class="text-stone-700">'사진'</b> 앱에서<br>
+                작품을 확인하실 수 있습니다.
+            </p>
+            <button onclick="document.getElementById('saveMessage').classList.add('hidden')" class="mt-8 bg-stone-800 text-white px-8 py-3 rounded-xl font-bold">확인</button>
+        </div>
+    </div>
+
+    <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-3xl text-center shadow-2xl max-w-sm w-full mx-4">
+            <div id="infoModalIcon" class="text-4xl mb-4">💡</div>
+            <p id="infoModalText" class="text-lg text-stone-700 font-medium mb-6"></p>
+            <button onclick="document.getElementById('infoModal').classList.add('hidden')" class="bg-stone-800 text-white px-8 py-2 rounded-xl font-bold">확인</button>
+        </div>
+    </div>
+
+    <!-- 카메라 촬영 모달 -->
+    <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-6 rounded-3xl shadow-2xl text-center max-w-2xl w-full mx-4 relative">
+            <button onclick="closeCameraModal()" class="absolute top-4 right-5 text-stone-400 hover:text-stone-600 text-3xl font-bold">✕</button>
+            <h3 class="text-2xl font-bold text-stone-800 mb-4">📷 카메라 촬영</h3>
+            <p class="text-stone-500 text-sm mb-4">※ 카메라 사용을 묻는 창이 뜨면 <b>"허용"</b>을 눌러주세요.</p>
+            
+            <div class="relative bg-stone-900 rounded-2xl overflow-hidden mb-4" style="aspect-ratio: 4/3;">
+                <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                <div id="cameraError" class="absolute inset-0 flex items-center justify-center text-white text-base px-6 hidden">
+                    <span></span>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 justify-center">
+                <button id="switchCameraBtn" onclick="switchCamera()" class="bg-stone-100 hover:bg-stone-200 text-stone-700 px-5 py-4 rounded-xl font-bold border-2 border-stone-200 transition flex items-center gap-2">
+                    <span class="text-xl">🔄</span>
+                    <span>전·후면</span>
+                </button>
+                <button onclick="capturePhoto()" class="flex-1 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white py-4 rounded-xl font-bold text-xl shadow-lg flex items-center justify-center gap-2">
+                    <span class="text-2xl">📸</span>
+                    <span>지금 찍기</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-md w-full mx-4 relative">
+            <button onclick="document.getElementById('settingsModal').classList.add('hidden')" class="absolute top-5 right-5 text-stone-400 hover:text-stone-600 text-2xl">✕</button>
+            <h3 class="text-2xl font-bold mb-4 text-stone-800">⚙️ AI & 사진 기능 설정</h3>
+            
+            <div class="text-left space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-stone-600 mb-1">Gemini API 키 (글/그림 생성)</label>
+                    <input type="password" id="apiKeyInput" placeholder="Gemini API 키를 입력하세요" class="w-full p-3 border-2 border-stone-200 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-stone-600 mb-1">Pixabay API 키 (선택사항)</label>
+                    <input type="password" id="pixabayKeyInput" placeholder="Pixabay API 키를 입력하세요" class="w-full p-3 border-2 border-stone-200 rounded-xl outline-none focus:border-green-500">
+                </div>
+            </div>
+
+            <button onclick="saveApiKey()" class="w-full bg-stone-800 text-white py-4 rounded-xl font-bold shadow-md mt-6">저장하기</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 전역 변수 및 설정 ---
+        const canvas = document.getElementById('mainCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasContainer = document.getElementById('canvas-container');
+        const imageLoader = document.getElementById('imageLoader');
+        const userTextInput = document.getElementById('userText');
+        const authorInput = document.getElementById('authorInput');
+        const titleInput = document.getElementById('titleInput');
+        const receiverInput = document.getElementById('receiverInput');
+        const senderInput = document.getElementById('senderInput');
+        const textSizeInput = document.getElementById('textSize');
+        const outlineSizeInput = document.getElementById('outlineSize');
+        const outlineColorPicker = document.getElementById('outlineColorPicker');
+
+        let img = new Image();
+        let loaded = false;
+        let currentFilter = 'none';
+        let apiKey = localStorage.getItem('goldssun_api_key') || "";
+        let pixabayKey = localStorage.getItem('goldssun_pixabay_key') || "";
+        let currentRatio = "16:9";
+
+        const fallbackPhotos = {
+            'nature': [
+                "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1600&q=80",
+                "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80",
+                "https://images.unsplash.com/photo-1433086566280-608bd7d5440b?auto=format&fit=crop&w=1600&q=80"
+            ],
+            'cityscape': [
+                "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1600&q=80",
+                "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1600&q=80",
+                "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1600&q=80"
+            ]
+        };
+
+        let textConfig = {
+            text: '', author: '', title: '', receiver: '', sender: '',
+            size: 45, color: '#ffffff', outlineWidth: 2, outlineColor: '#000000',
+            x: 0.5, y: 0.5, font: 'Nanum Pen Script'
+        };
+
+        let drawPending = false;
+        function requestDraw() {
+            if (!drawPending) {
+                drawPending = true;
+                requestAnimationFrame(() => { draw(); drawPending = false; });
+            }
+        }
+
+        function showMsg(text, icon = '💡') {
+            document.getElementById('infoModalText').innerText = text;
+            document.getElementById('infoModalIcon').innerText = icon;
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+
+        // --- 사진 로드 로직 ---
+        async function smartLoadBackground(category) {
+            if (!pixabayKey) {
+                const list = fallbackPhotos[category];
+                if (list) {
+                    const randomUrl = list[Math.floor(Math.random() * list.length)];
+                    changeImageSource(randomUrl);
+                    showMsg("추천 사진을 불러왔습니다.", "📷");
+                    setTimeout(() => document.getElementById('infoModal').classList.add('hidden'), 3000);
+                }
+            } else { loadBgFromPixabay(category); }
+        }
+
+        async function searchCustomBackground() {
+            const query = document.getElementById('pixabayQuery').value.trim();
+            if (!query) return showMsg("찾고 싶은 단어를 입력해 주세요.", "🔍");
+            if (!pixabayKey) { showMsg("직접 검색 기능은 픽사베이 API 키가 필요합니다.", "🔑"); openSettingsModal(); return; }
+            loadBgFromPixabay(query);
+        }
+
+        async function loadBgFromPixabay(queryTerm) {
+            let query = queryTerm;
+            if (queryTerm === 'nature') query = 'nature,landscape';
+            if (queryTerm === 'cityscape') query = 'city,architecture';
+            const url = `https://pixabay.com/api/?key=${pixabayKey}&q=${encodeURIComponent(query)}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40`;
+            try {
+                showMsg(`'${queryTerm}' 사진을 찾는 중...`, "📷");
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.hits && data.hits.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * data.hits.length);
+                    changeImageSource(data.hits[randomIndex].largeImageURL);
+                    document.getElementById('infoModal').classList.add('hidden');
+                } else { showMsg("사진을 찾지 못했습니다.", "⚠️"); }
+            } catch (e) { showMsg("픽사베이 연결 오류입니다.", "⚠️"); }
+        }
+
+        function changeImageSource(url) {
+            currentFilter = 'none';
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('selected'));
+            const noneBtn = Array.from(document.querySelectorAll('.filter-btn')).find(b => b.textContent === '원본');
+            if (noneBtn) noneBtn.classList.add('selected');
+            img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => { loaded = true; requestDraw(); };
+            img.src = url;
+        }
+
+        function setCanvasRatio(r, btn) {
+            currentRatio = r;
+            document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            canvasContainer.style.aspectRatio = r.replace(':', '/');
+            const base = 1600;
+            if (r === '16:9') { canvas.width = base; canvas.height = (base * 9) / 16; }
+            else if (r === '4:3') { canvas.width = base; canvas.height = (base * 3) / 4; }
+            else if (r === '9:16') { canvas.width = (base * 9) / 16; canvas.height = base; }
+            requestDraw();
+        }
+
+        img.crossOrigin = "Anonymous";
+        img.onload = () => { loaded = true; requestDraw(); };
+        img.src = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1280&q=80";
+
+        imageLoader.onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                img = new Image();
+                img.onload = () => { loaded = true; requestDraw(); };
+                img.src = ev.target.result;
+            };
+            if (e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+        };
+
+        // --- 핵심 그리기 함수 ---
+        function draw() {
+            if (!loaded) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.filter = getFilterStyle(currentFilter);
+            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+            const x = (canvas.width / 2) - (img.width / 2) * scale;
+            const y = (canvas.height / 2) - (img.height / 2) * scale;
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+            ctx.restore();
+            
+            ctx.save();
+            const unit = canvas.width / 1000;
+            ctx.shadowColor = "rgba(0,0,0,0.6)";
+            ctx.shadowBlur = 8 * unit;
+            ctx.fillStyle = textConfig.color;
+            ctx.strokeStyle = textConfig.outlineColor;
+            ctx.lineWidth = textConfig.outlineWidth * unit;
+
+            const fontName = (textConfig.font === 'Nanum Pen Script') ? 'Nanum Pen Script' : 
+                             (textConfig.font === 'Nanum Myeongjo') ? 'Nanum Myeongjo' :
+                             (textConfig.font === 'NanumSquare') ? 'NanumSquare' :
+                             (textConfig.font === 'Pretendard') ? 'Pretendard' :
+                             (textConfig.font === 'Jua') ? 'Jua' :
+                             (textConfig.font === 'Moneygraphy-Rounded') ? 'Moneygraphy-Rounded' : 'Nanum Pen Script';
+
+            const fSize = textConfig.size * 1.8 * unit;
+            ctx.font = `${fSize}px "${fontName}", sans-serif`;
+            
+            let lines = [];
+            if (textConfig.text) {
+                const rawParagraphs = textConfig.text.split('\n');
+                rawParagraphs.forEach(p => {
+                    if (p === "") {
+                        lines.push("");
+                    } else {
+                        const wrapped = getWrappedLines(ctx, p, canvas.width * 0.85);
+                        lines = lines.concat(wrapped);
+                    }
+                });
+            } else {
+                lines = [""];
+            }
+            
+            const firstLineY = canvas.height * textConfig.y;
+            const lineHeight = fSize * 1.2;
+
+            let firstContentIndex = lines.findIndex(line => line.trim() !== "");
+            if (firstContentIndex === -1) firstContentIndex = 0;
+
+            if (textConfig.title) {
+                const titleSize = textConfig.size * 1.5 * unit;
+                ctx.font = `bold ${titleSize}px "${fontName}", sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                
+                const gapBetweenTitleAndBody = 144 * unit;
+                let titleAnchorY = firstLineY + (firstContentIndex * lineHeight);
+                let titleY = titleAnchorY - (fSize * 0.7) - gapBetweenTitleAndBody;
+
+                if (titleY < 80 * unit) titleY = 80 * unit;
+
+                if (textConfig.outlineWidth > 0) ctx.strokeText(textConfig.title, canvas.width / 2, titleY);
+                ctx.fillText(textConfig.title, canvas.width / 2, titleY);
+            }
+
+            if (textConfig.receiver) {
+                ctx.font = `${textConfig.size * 1.1 * unit}px "${fontName}", sans-serif`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'alphabetic';
+                const txt = `To. ${textConfig.receiver}`;
+                if (textConfig.outlineWidth > 0) ctx.strokeText(txt, 50 * unit, 80 * unit);
+                ctx.fillText(txt, 50 * unit, 80 * unit);
+            }
+
+            let bY = canvas.height - (50 * unit);
+            const rX = canvas.width - (50 * unit);
+            ctx.font = `${textConfig.size * 1.0 * unit}px "${fontName}", sans-serif`;
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'alphabetic';
+
+            if (textConfig.author) {
+                if (textConfig.outlineWidth > 0) ctx.strokeText(textConfig.author, rX, bY);
+                ctx.fillText(textConfig.author, rX, bY);
+                bY -= (textConfig.size * 1.2 * unit);
+            }
+            if (textConfig.sender) {
+                const txt = `From. ${textConfig.sender}`;
+                if (textConfig.outlineWidth > 0) ctx.strokeText(txt, rX, bY);
+                ctx.fillText(txt, rX, bY);
+            }
+
+            if (textConfig.text) {
+                ctx.font = `${fSize}px "${fontName}", sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+                lines.forEach((line, i) => {
+                    const ly = firstLineY + (i * lineHeight);
+                    if (line !== "") {
+                        if (textConfig.outlineWidth > 0) ctx.strokeText(line, canvas.width / 2, ly);
+                        ctx.fillText(line, canvas.width / 2, ly);
+                    }
+                });
+            }
+            ctx.restore();
+        }
+
+        function getFilterStyle(f) {
+            switch(f) {
+                case 'gogh': return 'contrast(140%) saturate(180%) sepia(20%)';
+                case 'munch': return 'contrast(130%) saturate(220%) hue-rotate(-20deg) sepia(10%)';
+                case 'baroque': return 'brightness(75%) contrast(170%) sepia(30%) saturate(130%)';
+                case 'magritte': return 'brightness(105%) contrast(115%) saturate(85%)';
+                case 'water': return 'blur(1.2px) brightness(110%) saturate(120%)';
+                case 'korean': return 'grayscale(100%) contrast(110%) brightness(105%)';
+                case 'pencil': return 'sepia(60%) contrast(130%) grayscale(40%)';
+                case 'pastel': return 'brightness(115%) saturate(140%) contrast(85%)';
+                default: return 'none';
+            }
+        }
+
+        function getWrappedLines(context, text, maxWidth) {
+            let lines = [];
+            let currentLine = '';
+            for(let char of text) {
+                if (context.measureText(currentLine + char).width > maxWidth) {
+                    lines.push(currentLine);
+                    currentLine = char;
+                } else { currentLine += char; }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        async function setTextFont(f, btn) { 
+            textConfig.font = f; 
+            document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            try { await document.fonts.load(`1em "${f}"`); requestDraw(); } catch (e) { requestDraw(); }
+        }
+
+        userTextInput.oninput = (e) => { textConfig.text = e.target.value; requestDraw(); };
+        authorInput.oninput = (e) => { textConfig.author = e.target.value; requestDraw(); };
+        titleInput.oninput = (e) => { textConfig.title = e.target.value; requestDraw(); };
+        receiverInput.oninput = (e) => { textConfig.receiver = e.target.value; requestDraw(); };
+        senderInput.oninput = (e) => { textConfig.sender = e.target.value; requestDraw(); };
+        textSizeInput.oninput = (e) => { textConfig.size = e.target.value; document.getElementById('textSizeDisplay').innerText = e.target.value; requestDraw(); };
+        outlineSizeInput.oninput = (e) => { textConfig.outlineWidth = e.target.value; requestDraw(); };
+        
+        outlineColorPicker.oninput = (e) => { 
+            textConfig.outlineColor = e.target.value; 
+            requestDraw(); 
+        };
+
+        function setTextColor(c) { textConfig.color = c; requestDraw(); }
+        document.getElementById('textColorPicker').oninput = (e) => { setTextColor(e.target.value); };
+
+        function applyFilter(f, btn) { currentFilter = f; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); requestDraw(); }
+
+        // --- Gemini AI ---
+        async function generateAIText() {
+            if (!apiKey) { showMsg("Gemini API 키를 등록해 주세요.", "🔑"); return; }
+            const btn = document.getElementById('aiBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✨ AI가 생각 중<span class="loading-dots"></span>';
+            btn.disabled = true;
+            try {
+                const b64 = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const prompt = "이 사진과 어울리는 짧고 따뜻한 3줄 정도의 한국어 감성 문구를 지어줘.";
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: b64 } }] }] }) });
+                const data = await res.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) { userTextInput.value = text.trim(); textConfig.text = text.trim(); requestDraw(); }
+            } catch (e) { showMsg("AI 연결 실패.", "⚠️"); }
+            finally { btn.innerHTML = originalText; btn.disabled = false; }
+        }
+
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = `골드썬_디지털화방_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            document.getElementById('saveMessage').classList.remove('hidden');
+        }
+
+        // --- 카카오톡 공유 (Web Share API) ---
+        async function shareToKakao() {
+            if (!loaded) {
+                showMsg("먼저 사진을 불러와 주세요.", "🖼️");
+                return;
+            }
+
+            // 캔버스를 PNG 이미지 파일(Blob)로 변환
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    showMsg("이미지 생성에 실패했어요.", "⚠️");
+                    return;
+                }
+
+                const file = new File(
+                    [blob],
+                    `골드썬_디지털화방_${Date.now()}.png`,
+                    { type: 'image/png' }
+                );
+
+                const shareData = {
+                    title: '골드썬 디지털 화방 작품',
+                    text: '디지털 화방에서 만든 작품을 보내드려요 🎨',
+                    files: [file]
+                };
+
+                // Web Share API 지원 + 파일 공유 가능 여부 확인
+                if (navigator.canShare && navigator.canShare(shareData)) {
+                    try {
+                        await navigator.share(shareData);
+                        // 공유 성공 시엔 따로 메시지 표시 안 함 (사용자가 이미 카톡 화면 봄)
+                    } catch (err) {
+                        // 사용자가 공유 취소한 경우는 에러 표시 안 함
+                        if (err.name !== 'AbortError') {
+                            console.error("공유 실패:", err);
+                            showMsg("공유에 실패했습니다.", "⚠️");
+                        }
+                    }
+                } else if (navigator.share) {
+                    // 파일 공유 미지원 → 텍스트만 공유 시도 + 안내
+                    showMsg(
+                        "이 기기에선 사진 공유가 어렵습니다.\n먼저 '저장하기'를 누른 뒤,\n갤러리에서 카톡으로 보내주세요.",
+                        "📱"
+                    );
+                } else {
+                    // Web Share API 자체를 지원하지 않는 환경 (주로 PC 일부 브라우저)
+                    showMsg(
+                        "휴대폰에서 사용해 주세요.\n(PC에서는 '저장하기'를 이용하세요)",
+                        "📱"
+                    );
+                }
+            }, 'image/png');
+        }
+
+        // --- 카메라 촬영 기능 ---
+        let cameraStream = null;
+        let currentFacingMode = 'environment'; // 'environment' = 후면, 'user' = 전면
+
+        async function openCameraModal() {
+            document.getElementById('cameraModal').classList.remove('hidden');
+            document.getElementById('cameraError').classList.add('hidden');
+            await startCamera();
+        }
+
+        async function startCamera() {
+            const video = document.getElementById('cameraVideo');
+            const errorBox = document.getElementById('cameraError');
+            try {
+                // 기존 스트림 정리
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                }
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: currentFacingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+                    audio: false
+                });
+                video.srcObject = cameraStream;
+                errorBox.classList.add('hidden');
+            } catch (err) {
+                console.error("카메라 오류:", err);
+                errorBox.classList.remove('hidden');
+                let msg = "카메라를 사용할 수 없습니다.";
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    msg = "카메라 권한이 거부되었어요.\n브라우저 설정에서 허용해 주세요.";
+                } else if (err.name === 'NotFoundError') {
+                    msg = "카메라를 찾을 수 없습니다.";
+                } else if (err.name === 'NotReadableError') {
+                    msg = "다른 앱이 카메라를 사용 중이에요.";
+                }
+                errorBox.querySelector('span').innerText = msg;
+            }
+        }
+
+        async function switchCamera() {
+            currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+            await startCamera();
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraVideo');
+            if (!video.videoWidth) {
+                showMsg("카메라가 준비되지 않았어요.", "⏳");
+                return;
+            }
+            // 임시 캔버스에 현재 프레임 캡처
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = video.videoWidth;
+            tempCanvas.height = video.videoHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            // 전면 카메라일 때 좌우 반전 보정
+            if (currentFacingMode === 'user') {
+                tempCtx.translate(tempCanvas.width, 0);
+                tempCtx.scale(-1, 1);
+            }
+            tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+            const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.95);
+            changeImageSource(dataUrl);
+            closeCameraModal();
+            showMsg("사진이 작품판에 들어왔어요!", "🎉");
+        }
+
+        function closeCameraModal() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            const video = document.getElementById('cameraVideo');
+            if (video) video.srcObject = null;
+            document.getElementById('cameraModal').classList.add('hidden');
+        }
+
+        function openSettingsModal() { document.getElementById('apiKeyInput').value = apiKey; document.getElementById('pixabayKeyInput').value = pixabayKey; document.getElementById('settingsModal').classList.remove('hidden'); }
+        function saveApiKey() { apiKey = document.getElementById('apiKeyInput').value.trim(); pixabayKey = document.getElementById('pixabayKeyInput').value.trim(); localStorage.setItem('goldssun_api_key', apiKey); localStorage.setItem('goldssun_pixabay_key', pixabayKey); document.getElementById('settingsModal').classList.add('hidden'); showMsg("저장되었습니다!", "✅"); }
+
+        // --- STT ---
+        let recognition;
+        let isListening = false;
+        let currentTargetId = '';
+        let currentMicBtnId = '';
+        function initRecognition() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRec) {
+                recognition = new SpeechRec();
+                recognition.continuous = false;
+                recognition.lang = 'ko-KR';
+                recognition.onresult = (e) => {
+                    const transcript = e.results[0][0].transcript;
+                    const target = document.getElementById(currentTargetId);
+                    if (target) { target.value = (target.value + ' ' + transcript).trim(); target.dispatchEvent(new Event('input')); }
+                    stopMicUI();
+                };
+                recognition.onerror = () => stopMicUI();
+                recognition.onend = () => stopMicUI();
+            }
+        }
+        initRecognition();
+        function toggleSpeech(targetId, btnId) {
+            if (!recognition) return showMsg("음성 인식을 지원하지 않습니다.", "⚠️");
+            if (isListening) { recognition.stop(); return; }
+            currentTargetId = targetId;
+            currentMicBtnId = btnId;
+            isListening = true;
+            document.getElementById(btnId).classList.add('mic-active');
+            recognition.start();
+        }
+        function stopMicUI() { isListening = false; if (currentMicBtnId) document.getElementById(currentMicBtnId).classList.remove('mic-active'); }
+
+        window.onload = () => {
+            setCanvasRatio('16:9', document.querySelector('.ratio-btn'));
+            textConfig.outlineColor = outlineColorPicker.value;
+        };
+    </script>
+</body>
+</html>
