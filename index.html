@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>디지털화방 (digital-art v7.6)</title>
+
+    <!-- ══════════════════════════════════════════
+         📱 PWA - 진짜 앱처럼 설치 가능
+         ══════════════════════════════════════════ -->
+    <meta name="theme-color" content="#f59e0b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="디지털화방" />
+    <meta name="application-name" content="디지털화방" />
+    <meta name="copyright" content="© 2026 디지털화방 · Goldssun · All Rights Reserved." />
+    <meta name="description" content="어르신을 위한 따뜻한 디지털 아트 앱 - 사진에 글씨를 더해 마음을 담은 작품을 만들어요" />
+
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts & External Fonts -->
@@ -1298,6 +1315,17 @@
             setCanvasRatio('16:9', document.querySelector('.ratio-btn'));
             textConfig.outlineColor = outlineColorPicker.value;
         };
+
+        /* ══════════════════════════════════════════
+           📱 Service Worker 등록 (PWA 설치 가능하게 함)
+           ══════════════════════════════════════════ */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('✅ SW 등록 성공:', reg.scope))
+                    .catch(err => console.warn('❌ SW 등록 실패:', err));
+            });
+        }
     </script>
 </body>
 </html>
