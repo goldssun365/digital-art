@@ -414,9 +414,6 @@
                         <span class="bg-amber-100 text-amber-800 rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">1</span>
                         사진 선택 및 검색
                     </h2>
-                    <button onclick="openSettingsModal()" class="text-stone-400 hover:text-stone-600 font-bold text-sm flex items-center gap-1" title="API 키 입력">
-                        ⚙️ API키
-                    </button>
                 </div>
                 
                 <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 shadow-sm">
@@ -621,22 +618,6 @@
         </div>
     </div>
 
-    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-md w-full mx-4 relative">
-            <button onclick="document.getElementById('settingsModal').classList.add('hidden')" class="absolute top-5 right-5 text-stone-400 hover:text-stone-600 text-2xl">✕</button>
-            <h3 class="text-2xl font-bold mb-4 text-stone-800">⚙️ 사진 검색 설정</h3>
-            
-            <div class="text-left space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-stone-600 mb-1">Pixabay API 키 (선택사항)</label>
-                    <input type="password" id="pixabayKeyInput" placeholder="Pixabay API 키를 입력하세요" class="w-full p-3 border-2 border-stone-200 rounded-xl outline-none focus:border-green-500">
-                </div>
-            </div>
-
-            <button onclick="saveApiKey()" class="w-full bg-stone-800 text-white py-4 rounded-xl font-bold shadow-md mt-6">저장하기</button>
-        </div>
-    </div>
-
     <script>
         // --- 전역 변수 및 설정 ---
         const canvas = document.getElementById('mainCanvas');
@@ -655,7 +636,12 @@
         let img = new Image();
         let loaded = false;
         let currentFilter = 'none';
-        let pixabayKey = localStorage.getItem('goldssun_pixabay_key') || "";
+        // ╔══════════════════════════════════════════════════════════════╗
+        // ║ 👇 명구 님 Cloudflare Worker 주소를 여기 입력하세요 👇        ║
+        // ║ 예: https://goldssun-pixabay.your-username.workers.dev       ║
+        // ║ Worker 셋업 후 아래 주소를 본인 Worker 주소로 교체!           ║
+        // ╚══════════════════════════════════════════════════════════════╝
+        const WORKER_URL = 'https://goldssun-pixabay.YOUR-USERNAME.workers.dev';
         let currentRatio = "16:9";
 
         const fallbackPhotos = {
@@ -715,45 +701,56 @@
             document.getElementById('infoModal').classList.remove('hidden');
         }
 
-        // --- 사진 로드 로직 ---
+        // --- 사진 로드 로직 (Worker 경유) ---
+        // 모든 검색은 Cloudflare Worker로 가고, Worker가 캐시 + Pixabay 처리.
+        // Worker 실패 시에만 fallbackPhotos로 안전망 사용.
         async function smartLoadBackground(category) {
-            if (!pixabayKey) {
-                const list = fallbackPhotos[category];
-                if (list) {
-                    const randomUrl = list[Math.floor(Math.random() * list.length)];
-                    changeImageSource(randomUrl);
-                    showMsg("추천 사진을 불러왔습니다.", "📷");
-                    setTimeout(() => document.getElementById('infoModal').classList.add('hidden'), 3000);
-                }
-            } else { loadBgFromPixabay(category); }
+            await loadBgFromWorker(category);
         }
 
         async function searchCustomBackground() {
             const query = document.getElementById('pixabayQuery').value.trim();
             if (!query) return showMsg("찾고 싶은 단어를 입력해 주세요.", "🔍");
-            if (!pixabayKey) { showMsg("직접 검색 기능은 픽사베이 API 키가 필요합니다.", "🔑"); openSettingsModal(); return; }
-            loadBgFromPixabay(query);
+            await loadBgFromWorker(query);
         }
 
-        async function loadBgFromPixabay(queryTerm) {
-            let query = queryTerm;
-            if (queryTerm === 'nature') query = 'nature,landscape';
-            if (queryTerm === 'cityscape') query = 'city,architecture';
-            if (queryTerm === 'spring') query = 'cherry blossom,spring flowers';
-            if (queryTerm === 'summer') query = 'beach,ocean,summer';
-            if (queryTerm === 'autumn') query = 'autumn leaves,maple';
-            if (queryTerm === 'winter') query = 'winter snow,snow landscape';
-            const url = `https://pixabay.com/api/?key=${pixabayKey}&q=${encodeURIComponent(query)}&image_type=photo&orientation=horizontal&safesearch=true&per_page=40`;
+        async function loadBgFromWorker(queryTerm) {
+            const url = `${WORKER_URL}/search?q=${encodeURIComponent(queryTerm)}`;
             try {
                 showMsg(`'${queryTerm}' 사진을 찾는 중...`, "📷");
                 const response = await fetch(url);
+                
+                if (!response.ok) {
+                    // Worker 실패 시 안전망(fallbackPhotos) 사용
+                    return useFallback(queryTerm);
+                }
+                
                 const data = await response.json();
                 if (data.hits && data.hits.length > 0) {
                     const randomIndex = Math.floor(Math.random() * data.hits.length);
                     changeImageSource(data.hits[randomIndex].largeImageURL);
                     document.getElementById('infoModal').classList.add('hidden');
-                } else { showMsg("사진을 찾지 못했습니다.", "⚠️"); }
-            } catch (e) { showMsg("픽사베이 연결 오류입니다.", "⚠️"); }
+                } else {
+                    // 검색 결과 없을 때도 안전망
+                    useFallback(queryTerm);
+                }
+            } catch (e) {
+                // 네트워크 끊김 등 — 안전망으로 폴백
+                useFallback(queryTerm);
+            }
+        }
+
+        // 안전망: Worker가 안 될 때 미리 박힌 사진 사용
+        function useFallback(category) {
+            const list = fallbackPhotos[category];
+            if (list && list.length > 0) {
+                const randomUrl = list[Math.floor(Math.random() * list.length)];
+                changeImageSource(randomUrl);
+                showMsg("추천 사진을 불러왔습니다.", "📷");
+                setTimeout(() => document.getElementById('infoModal').classList.add('hidden'), 2000);
+            } else {
+                showMsg("사진을 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.", "⚠️");
+            }
         }
 
         function changeImageSource(url) {
@@ -1102,9 +1099,6 @@
             if (video) video.srcObject = null;
             document.getElementById('cameraModal').classList.add('hidden');
         }
-
-        function openSettingsModal() { document.getElementById('pixabayKeyInput').value = pixabayKey; document.getElementById('settingsModal').classList.remove('hidden'); }
-        function saveApiKey() { pixabayKey = document.getElementById('pixabayKeyInput').value.trim(); localStorage.setItem('goldssun_pixabay_key', pixabayKey); document.getElementById('settingsModal').classList.add('hidden'); showMsg("저장되었습니다!", "✅"); }
 
         // --- STT ---
         let recognition;
