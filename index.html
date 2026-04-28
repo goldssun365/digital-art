@@ -1016,9 +1016,20 @@
             }
             tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
             const dataUrl = tempCanvas.toDataURL('image/jpeg', 0.95);
+
+            // ✨ 원본 사진을 휴대폰 갤러리에 자동 저장 (글씨를 안 써도 추억이 남도록)
+            try {
+                const link = document.createElement('a');
+                link.download = `디지털화방_원본_${Date.now()}.jpg`;
+                link.href = dataUrl;
+                link.click();
+            } catch (e) {
+                console.error("원본 사진 저장 실패:", e);
+            }
+
             changeImageSource(dataUrl);
             closeCameraModal();
-            showMsg("사진이 작품판에 들어왔어요!", "🎉");
+            showMsg("사진이 작품판에 들어왔어요!\n원본은 갤러리에 저장됐어요. 📱", "🎉");
         }
 
         function closeCameraModal() {
