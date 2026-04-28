@@ -93,7 +93,7 @@
                 border-width: 2px;
             }
             .canvas-wrap {
-                padding: 0.75rem !important;
+                padding: 0.375rem !important;  /* 0.75rem → 절반: 사진 액자가 시각적으로 커 보임 */
                 border-radius: 1.25rem !important;
             }
         }
@@ -380,11 +380,11 @@
     </div>
 
     <!-- Header -->
-    <header class="text-center mb-6 w-full px-4 relative max-w-6xl mx-auto">
+    <header class="text-center mb-2 w-full px-2 relative max-w-6xl mx-auto">
         <h1 class="text-xl md:text-2xl font-bold text-stone-800 serif-font mb-2">🎨 디지털화방 <span class="text-stone-500 text-base md:text-lg font-normal">(digital-art v7.6)</span></h1>
     </header>
 
-    <main class="w-full max-w-7xl flex flex-col lg:flex-row gap-6 px-2 sm:px-4 flex-1">
+    <main class="w-full max-w-7xl flex flex-col lg:flex-row gap-6 px-1 sm:px-3 flex-1">
         
         <!-- Left Side: Canvas Area -->
         <div class="canvas-wrap flex-1 flex flex-col items-center bg-white p-6 rounded-3xl shadow-lg border border-stone-200">
