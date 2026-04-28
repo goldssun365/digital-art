@@ -10,8 +10,8 @@ const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192x192.png',
-  './icons/icon-512x512.png'
+  './icon-192x192.png',
+  './icon-512x512.png'
 ];
 
 // 설치 시: 핵심 파일들을 캐시에 저장
