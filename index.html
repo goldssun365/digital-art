@@ -293,6 +293,48 @@
             font-weight: bold;
             font-size: 1rem;
         }
+
+        /* ===== 카메라 모달 - 가로 모드(landscape) 대응 ===== */
+        /* 기본(세로/PC)에서의 영상 박스 비율 */
+        .camera-video-box {
+            aspect-ratio: 4 / 3;
+        }
+        /* 모바일 가로 모드: 영상 박스가 화면을 덮어 버튼이 가려지는 문제 해결 */
+        @media (orientation: landscape) and (max-height: 600px) {
+            /* 모달 컨테이너가 화면을 넘으면 스크롤 가능하게 */
+            #cameraModal {
+                align-items: flex-start;
+                overflow-y: auto;
+                padding: 0.5rem 0;
+            }
+            /* 모달 안쪽 흰 박스 - 패딩 축소 */
+            #cameraModal > div {
+                padding: 1rem !important;
+                border-radius: 1.25rem;
+            }
+            /* 영상 박스: 가로 비율로 바꾸고, 화면 세로의 절반 이하로 제한 */
+            .camera-video-box {
+                aspect-ratio: 16 / 9;
+                max-height: 50vh;
+                max-height: 50dvh;
+                margin-bottom: 0.75rem !important;
+            }
+            /* 안내 문구는 가로 모드에서는 숨김 (공간 확보) */
+            .landscape-hide {
+                display: none !important;
+            }
+            /* 헤더는 작게 */
+            .landscape-compact-title {
+                font-size: 1.25rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            /* 버튼 세로 패딩 살짝 축소 (그래도 큼직하게) */
+            #cameraModal button[onclick="capturePhoto()"],
+            #cameraModal #switchCameraBtn {
+                padding-top: 0.875rem !important;
+                padding-bottom: 0.875rem !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-stone-100 min-h-screen flex flex-col items-center py-6">
@@ -539,11 +581,11 @@
     <!-- 카메라 촬영 모달 -->
     <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
         <div class="bg-white p-6 rounded-3xl shadow-2xl text-center max-w-2xl w-full mx-4 relative">
-            <button onclick="closeCameraModal()" class="absolute top-4 right-5 text-stone-400 hover:text-stone-600 text-3xl font-bold">✕</button>
-            <h3 class="text-2xl font-bold text-stone-800 mb-4">📷 카메라 촬영</h3>
-            <p class="text-stone-500 text-sm mb-4">※ 카메라 사용을 묻는 창이 뜨면 <b>"허용"</b>을 눌러주세요.</p>
+            <button onclick="closeCameraModal()" class="absolute top-4 right-5 text-stone-400 hover:text-stone-600 text-3xl font-bold z-10">✕</button>
+            <h3 class="text-2xl font-bold text-stone-800 mb-4 landscape-compact-title">📷 카메라 촬영</h3>
+            <p class="text-stone-500 text-sm mb-4 landscape-hide">※ 카메라 사용을 묻는 창이 뜨면 <b>"허용"</b>을 눌러주세요.</p>
             
-            <div class="relative bg-stone-900 rounded-2xl overflow-hidden mb-4" style="aspect-ratio: 4/3;">
+            <div class="relative bg-stone-900 rounded-2xl overflow-hidden mb-4 camera-video-box">
                 <video id="cameraVideo" autoplay playsinline class="w-full h-full object-cover"></video>
                 <div id="cameraError" class="absolute inset-0 flex items-center justify-center text-white text-base px-6 hidden">
                     <span></span>
