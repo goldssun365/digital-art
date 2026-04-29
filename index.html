@@ -398,9 +398,9 @@
             <p class="mt-4 text-stone-500 text-sm font-medium">※ 버튼을 누르거나 단어를 검색하면 새로운 사진을 가져옵니다.</p>
             
             <div class="mt-6 flex gap-3 w-full justify-center">
-                <button onclick="setCanvasRatio('16:9', this)" class="ratio-btn selected px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm">16:9 (TV)</button>
-                <button onclick="setCanvasRatio('4:3', this)" class="ratio-btn px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm">4:3 (사진)</button>
-                <button onclick="setCanvasRatio('9:16', this)" class="ratio-btn px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm">9:16 (폰)</button>
+                <button onclick="setCanvasRatio('16:9', this)" class="ratio-btn selected px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm leading-tight text-center">16:9<br>(TV)</button>
+                <button onclick="setCanvasRatio('4:3', this)" class="ratio-btn px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm leading-tight text-center">4:3<br>(사진)</button>
+                <button onclick="setCanvasRatio('9:16', this)" class="ratio-btn px-6 py-3 rounded-xl border-2 border-stone-300 bg-white text-stone-700 font-bold hover:bg-stone-50 transition shadow-sm leading-tight text-center">9:16<br>(폰)</button>
             </div>
         </div>
 
@@ -417,10 +417,10 @@
                 </div>
                 
                 <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4 shadow-sm">
-                    <label class="block text-xs font-bold text-amber-700 mb-2">🔍 원하는 사진 검색 (예: 바다, 호수, 꽃)</label>
+                    <label class="block text-sm font-bold text-amber-700 mb-2">🔍 원하는 사진 검색 (예: 바다, 호수, 꽃)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="pixabayQuery" placeholder="찾고 싶은 단어 입력..." class="flex-1 min-w-0 p-2 border border-amber-300 rounded-lg text-sm outline-none focus:border-amber-500">
-                        <button onclick="searchCustomBackground()" class="flex-shrink-0 bg-amber-500 hover:bg-amber-600 text-white px-5 rounded-lg font-bold text-sm transition whitespace-nowrap">찾기</button>
+                        <input type="text" id="pixabayQuery" placeholder="예: 하늘, 노을, 꽃" class="flex-1 min-w-0 p-3 border-2 border-amber-300 rounded-lg text-lg font-semibold outline-none focus:border-amber-500">
+                        <button onclick="searchCustomBackground()" class="flex-shrink-0 bg-amber-500 hover:bg-amber-600 text-white px-5 rounded-lg font-bold text-base transition whitespace-nowrap">찾기</button>
                     </div>
                 </div>
 
