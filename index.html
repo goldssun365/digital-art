@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>디지털화방 (digital-art v7.6)</title>
+    <title>디지털아트 (digital-art v7.6)</title>
 
     <!-- ══════════════════════════════════════════
          📱 PWA - 진짜 앱처럼 설치 가능
@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#f59e0b" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="디지털화방" />
-    <meta name="application-name" content="디지털화방" />
-    <meta name="copyright" content="© 2026 디지털화방 · Goldssun · All Rights Reserved." />
+    <meta name="apple-mobile-web-app-title" content="디지털아트" />
+    <meta name="application-name" content="디지털아트" />
+    <meta name="copyright" content="© 2026 디지털아트 · Goldssun · All Rights Reserved." />
     <meta name="description" content="어르신을 위한 따뜻한 디지털 아트 앱 - 사진에 글씨를 더해 마음을 담은 작품을 만들어요" />
 
     <link rel="manifest" href="manifest.json" />
@@ -345,7 +345,7 @@
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-box">
             <div class="auth-logo">🎨🖌️</div>
-            <div class="auth-title">디지털화방</div>
+            <div class="auth-title">디지털아트</div>
             <div class="auth-subtitle">구매하신 코드를 입력해주세요<br>숫자 12자리를 차례로 눌러주세요</div>
 
             <label class="auth-label" for="authCodeInput">구매 코드</label>
@@ -372,7 +372,7 @@
 
             <div class="auth-legal">
                 <strong>⚠️ 이용 안내</strong>
-                본 '디지털화방' 앱의 모든 권리는 김명구(Goldssun)에게 있습니다.
+                본 '디지털아트' 앱의 모든 권리는 김명구(Goldssun)에게 있습니다.
                 무단 복제·재배포·도용·상업적 이용을 금하며, 위반 시 법적 책임을 물을 수 있습니다.
                 작품 데이터는 기기 내에서만 처리되며 외부로 전송되지 않습니다.
             </div>
@@ -381,7 +381,7 @@
 
     <!-- Header -->
     <header class="text-center mb-2 w-full px-2 relative max-w-6xl mx-auto">
-        <h1 class="text-xl md:text-2xl font-bold text-stone-800 serif-font mb-2">🎨 디지털화방 <span class="text-stone-500 text-base md:text-lg font-normal">(digital-art v7.6)</span></h1>
+        <h1 class="text-xl md:text-2xl font-bold text-stone-800 serif-font mb-2">🎨 디지털아트 <span class="text-stone-500 text-base md:text-lg font-normal">(digital-art v7.6)</span></h1>
     </header>
 
     <main class="w-full max-w-7xl flex flex-col lg:flex-row gap-6 px-1 sm:px-3 flex-1">
@@ -564,7 +564,7 @@
                 © 2026 김명구 (Goldssun). All Rights Reserved.
             </p>
             <p class="text-stone-400 text-xs md:text-sm font-medium leading-relaxed">
-                본 '디지털화방 (digital-art)' 서비스의 모든 권리(저작권·라이선스)는 <b class="text-stone-500">김명구</b>에게 있습니다.<br>
+                본 '디지털아트 (digital-art)' 서비스의 모든 권리(저작권·라이선스)는 <b class="text-stone-500">김명구</b>에게 있습니다.<br>
                 무단 복제·재배포·도용·상업적 이용을 금하며, 위반 시 관련 법령에 따라 법적 책임을 물을 수 있습니다.
             </p>
         </div>
@@ -951,7 +951,7 @@
 
         function saveImage() {
             const link = document.createElement('a');
-            link.download = `골드썬_디지털화방_${Date.now()}.png`;
+            link.download = `골드썬_디지털아트_${Date.now()}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
             document.getElementById('saveMessage').classList.remove('hidden');
@@ -973,12 +973,12 @@
 
                 const file = new File(
                     [blob],
-                    `골드썬_디지털화방_${Date.now()}.png`,
+                    `골드썬_디지털아트_${Date.now()}.png`,
                     { type: 'image/png' }
                 );
 
                 const shareData = {
-                    title: '디지털화방 작품',
+                    title: '디지털아트 작품',
                     text: '디지털 화방에서 만든 작품을 보내드려요 🎨',
                     files: [file]
                 };
@@ -1077,7 +1077,7 @@
             // ✨ 원본 사진을 휴대폰 갤러리에 자동 저장 (글씨를 안 써도 추억이 남도록)
             try {
                 const link = document.createElement('a');
-                link.download = `디지털화방_원본_${Date.now()}.jpg`;
+                link.download = `디지털아트_원본_${Date.now()}.jpg`;
                 link.href = dataUrl;
                 link.click();
             } catch (e) {
@@ -1152,7 +1152,7 @@
         // 차단된 코드 (환불 등) - 여기에 추가하면 강제 차단됨
         const BLOCKED_CODE_HASHES = [];
 
-        // 이 앱이 요구하는 권한 (디지털화방)
+        // 이 앱이 요구하는 권한 (디지털아트)
         const REQUIRED_PERMISSION = "digital";
 
         // 저장소 키
@@ -1299,10 +1299,10 @@
                 }
             }
 
-            // 🔑 권한 체크 - 디지털화방 사용 권한이 있는지 확인
+            // 🔑 권한 체크 - 디지털아트 사용 권한이 있는지 확인
             const perms = match.permissions || [];
             if (!perms.includes(REQUIRED_PERMISSION)) {
-                showAuthError(`이 코드는 디지털화방 권한이 없습니다.\n(다른 앱 전용 코드입니다)\n디지털화방 코드를 구매해주세요.`);
+                showAuthError(`이 코드는 디지털아트 권한이 없습니다.\n(다른 앱 전용 코드입니다)\n디지털아트 코드를 구매해주세요.`);
                 input.classList.add('error');
                 return;
             }
@@ -1321,7 +1321,7 @@
 
             // 환영 메시지
             const planName = { lifetime:'평생권', event:'이벤트권' }[match.plan] || '이용권';
-            alert(`✅ 인증 완료!\n${planName}이 활성화되었습니다.\n\n🎨 디지털화방을 마음껏 즐겨보세요!`);
+            alert(`✅ 인증 완료!\n${planName}이 활성화되었습니다.\n\n🎨 디지털아트를 마음껏 즐겨보세요!`);
 
             // 인증 화면 숨기기
             document.getElementById('authOverlay').classList.add('hidden');
