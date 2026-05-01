@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>디지털아트 (digital-art v7.6)</title>
+    <title>디지털아트 (digital-art v7.7)</title>
 
     <!-- ══════════════════════════════════════════
          📱 PWA - 진짜 앱처럼 설치 가능
@@ -591,6 +591,73 @@
         </div>
     </div>
 
+    <!-- 외부 브라우저 안내 모달 (카톡/네이버/인스타그램 인앱 브라우저용) -->
+    <div id="externalBrowserModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white p-6 rounded-3xl shadow-2xl max-w-md w-full max-h-[92vh] overflow-y-auto">
+            <div class="text-center mb-5">
+                <div class="text-5xl mb-3">🌐</div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-2">외부 브라우저로 열어주세요</h3>
+                <p class="text-stone-500 text-sm leading-relaxed">
+                    카카오톡 안에서는 사진 공유가 안 됩니다.<br>
+                    <b class="text-stone-700">크롬</b>이나 <b class="text-stone-700">사파리</b>로 열면 정상 작동해요.
+                </p>
+            </div>
+
+            <!-- 안드로이드 안내 -->
+            <div id="androidGuide" class="hidden bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 mb-3">
+                <p class="font-bold text-stone-800 mb-3 text-lg">📱 안드로이드 폰</p>
+                <div class="space-y-3">
+                    <div class="flex gap-3 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <p class="text-stone-700 text-base leading-relaxed pt-1">화면 <b>오른쪽 위 점 3개(⋮)</b><br>또는 <b>'더보기'</b> 누르기</p>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <p class="text-stone-700 text-base leading-relaxed pt-1"><b>"다른 브라우저로 열기"</b><br>또는 <b>"Chrome으로 열기"</b> 누르기</p>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <p class="text-stone-700 text-base leading-relaxed pt-1">크롬에서 다시 노란 <b>"카톡으로 보내기"</b> 누르기</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 아이폰 안내 -->
+            <div id="iosGuide" class="hidden bg-blue-50 border-2 border-blue-200 rounded-2xl p-5 mb-3">
+                <p class="font-bold text-stone-800 mb-3 text-lg">🍎 아이폰</p>
+                <div class="space-y-3">
+                    <div class="flex gap-3 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <p class="text-stone-700 text-base leading-relaxed pt-1">화면 <b>아래쪽 가운데</b><br>네모+화살표 모양 <b>공유 버튼</b> 누르기</p>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <p class="text-stone-700 text-base leading-relaxed pt-1"><b>"Safari로 열기"</b> 누르기</p>
+                    </div>
+                    <div class="flex gap-3 items-start">
+                        <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <p class="text-stone-700 text-base leading-relaxed pt-1">사파리에서 다시 노란 <b>"카톡으로 보내기"</b> 누르기</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 더 간단한 대안 -->
+            <div class="bg-stone-100 rounded-2xl p-4 mb-4 text-center">
+                <p class="text-stone-600 text-sm mb-3 font-medium">또는 더 간단하게</p>
+                <button onclick="document.getElementById('externalBrowserModal').classList.add('hidden'); saveImage();"
+                        class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-bold w-full">
+                    💾 저장하기 → 카톡 사진첨부로 보내기
+                </button>
+                <p class="text-stone-500 text-xs mt-2">갤러리에 저장된 작품을 카톡에서 첨부해주세요</p>
+            </div>
+
+            <button onclick="document.getElementById('externalBrowserModal').classList.add('hidden')"
+                    class="w-full bg-stone-800 text-white py-3 rounded-xl font-bold">
+                닫기
+            </button>
+        </div>
+    </div>
+
     <!-- 카메라 촬영 모달 -->
     <div id="cameraModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50">
         <div class="bg-white p-6 rounded-3xl shadow-2xl text-center max-w-2xl w-full mx-4 relative">
@@ -957,14 +1024,93 @@
             document.getElementById('saveMessage').classList.remove('hidden');
         }
 
-        // --- 카카오톡 공유 (Web Share API) ---
+        // ════════════════════════════════════════════════════
+        // 카카오톡 공유 (v7.7 — 인앱 브라우저 감지 + 안내 강화)
+        // ════════════════════════════════════════════════════
+
+        // 인앱 브라우저 감지 (카카오톡 / 네이버 / 인스타그램 / 페이스북 / 라인)
+        function detectInAppBrowser() {
+            const ua = navigator.userAgent || '';
+            if (/KAKAOTALK/i.test(ua)) return 'kakao';
+            if (/NAVER\(inapp/i.test(ua)) return 'naver';
+            if (/Instagram/i.test(ua)) return 'instagram';
+            if (/FBAN|FBAV/i.test(ua)) return 'facebook';
+            if (/Line\//i.test(ua)) return 'line';
+            return null;
+        }
+
+        // 휴대폰 환경 감지
+        function isMobileDevice() {
+            return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+        }
+
+        // 외부 브라우저 안내 모달 표시 (안드로이드/iOS 자동 분기)
+        function showExternalBrowserGuide() {
+            const ua = navigator.userAgent || '';
+            const isAndroid = /Android/i.test(ua);
+            const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+            const androidGuide = document.getElementById('androidGuide');
+            const iosGuide = document.getElementById('iosGuide');
+
+            // 둘 다 일단 숨기고
+            androidGuide.classList.add('hidden');
+            iosGuide.classList.add('hidden');
+
+            // OS에 맞는 것만 보여주기 (둘 다 모르면 둘 다 표시)
+            if (isAndroid) {
+                androidGuide.classList.remove('hidden');
+            } else if (isIOS) {
+                iosGuide.classList.remove('hidden');
+            } else {
+                androidGuide.classList.remove('hidden');
+                iosGuide.classList.remove('hidden');
+            }
+
+            document.getElementById('externalBrowserModal').classList.remove('hidden');
+        }
+
+        // 자동 저장 + 카톡 사진첨부 안내 (모든 실패 경로의 최종 폴백)
+        function fallbackSaveAndGuide() {
+            try {
+                const link = document.createElement('a');
+                link.download = `골드썬_디지털아트_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showMsg(
+                    "작품을 갤러리에 저장했어요.\n카톡을 열고 '사진 첨부'에서\n방금 저장한 작품을 선택해주세요.",
+                    "📂"
+                );
+            } catch (e) {
+                console.error("저장 폴백 실패:", e);
+                showMsg("저장에 실패했어요.\n다시 시도해주세요.", "⚠️");
+            }
+        }
+
+        // 메인 공유 함수
         async function shareToKakao() {
             if (!loaded) {
                 showMsg("먼저 사진을 불러와 주세요.", "🖼️");
                 return;
             }
 
-            // 캔버스를 PNG 이미지 파일(Blob)로 변환
+            // 1) 카톡/네이버/인스타그램 등 인앱 브라우저 → 외부 브라우저 안내
+            const inApp = detectInAppBrowser();
+            if (inApp) {
+                showExternalBrowserGuide();
+                return;
+            }
+
+            // 2) PC 환경 → PC용 안내 (모바일이 아니면)
+            if (!isMobileDevice()) {
+                showMsg(
+                    "PC에서는 '저장하기'를 이용해주세요.\n저장 후 카톡 PC앱에 끌어다 놓으면\n바로 보낼 수 있습니다.",
+                    "💻"
+                );
+                return;
+            }
+
+            // 3) 휴대폰 일반 브라우저 → Web Share API
             canvas.toBlob(async (blob) => {
                 if (!blob) {
                     showMsg("이미지 생성에 실패했어요.", "⚠️");
@@ -983,30 +1129,22 @@
                     files: [file]
                 };
 
-                // Web Share API 지원 + 파일 공유 가능 여부 확인
+                // 파일 공유 가능 환경 (크롬 안드로이드, 사파리 iOS, 삼성 인터넷 최신 등)
                 if (navigator.canShare && navigator.canShare(shareData)) {
                     try {
                         await navigator.share(shareData);
-                        // 공유 성공 시엔 따로 메시지 표시 안 함 (사용자가 이미 카톡 화면 봄)
+                        // 공유 성공 시 별도 메시지 없음 (이미 카톡 화면이 떠 있음)
                     } catch (err) {
-                        // 사용자가 공유 취소한 경우는 에러 표시 안 함
                         if (err.name !== 'AbortError') {
                             console.error("공유 실패:", err);
-                            showMsg("공유에 실패했습니다.", "⚠️");
+                            // 공유 실패 시 자동 저장 폴백
+                            fallbackSaveAndGuide();
                         }
+                        // AbortError(사용자 취소)는 메시지 표시 안 함
                     }
-                } else if (navigator.share) {
-                    // 파일 공유 미지원 → 텍스트만 공유 시도 + 안내
-                    showMsg(
-                        "이 기기에선 사진 공유가 어렵습니다.\n먼저 '저장하기'를 누른 뒤,\n갤러리에서 카톡으로 보내주세요.",
-                        "📱"
-                    );
                 } else {
-                    // Web Share API 자체를 지원하지 않는 환경 (주로 PC 일부 브라우저)
-                    showMsg(
-                        "휴대폰에서 사용해 주세요.\n(PC에서는 '저장하기'를 이용하세요)",
-                        "📱"
-                    );
+                    // Web Share API 파일 공유 미지원 → 자동 저장 폴백
+                    fallbackSaveAndGuide();
                 }
             }, 'image/png');
         }
