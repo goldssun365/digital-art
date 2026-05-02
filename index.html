@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>디지털아트 (digital-art v7.8)</title>
+    <title>디지털아트 (digital-art v7.9)</title>
 
     <!-- ══════════════════════════════════════════
          📱 PWA - 진짜 앱처럼 설치 가능
@@ -52,30 +52,22 @@
             transition: transform 0.1s;
         }
 
-        /* 색상 빠렛트(palette) - 시니어 분들이 한눈에 "이건 다른 색도 고를 수 있는 버튼"이라는 걸 알도록 */
+        /* 색상 빠렛트(palette) - 무지개 동그라미 버튼: 클릭하면 자체 빠렛트 모달이 열림 */
         .color-picker-palette {
             position: relative;
-            width: 2rem;
-            height: 2rem;
-            padding: 2px !important;
-            border: 2px solid #d6d3d1 !important;
+            width: 2.25rem;
+            height: 2.25rem;
+            padding: 0 !important;
+            border: 2px solid white !important;
             border-radius: 9999px !important;
             background: conic-gradient(from 0deg, #ef4444, #f59e0b, #eab308, #10b981, #3b82f6, #8b5cf6, #ec4899, #ef4444) !important;
             cursor: pointer !important;
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+            box-shadow: 0 0 0 2px #d6d3d1, 0 1px 3px 0 rgb(0 0 0 / 0.15);
+            flex-shrink: 0;
         }
-        .color-picker-palette::-webkit-color-swatch-wrapper {
-            padding: 0;
-            border-radius: 9999px;
-            overflow: hidden;
-        }
-        .color-picker-palette::-webkit-color-swatch {
-            border: 2px solid white;
-            border-radius: 9999px;
-        }
-        .color-picker-palette::-moz-color-swatch {
-            border: 2px solid white;
-            border-radius: 9999px;
+        .color-picker-palette:hover {
+            transform: scale(1.1);
+            transition: transform 0.15s;
         }
 
         .selected {
@@ -407,7 +399,7 @@
 
     <!-- Header -->
     <header class="text-center mb-2 w-full px-2 relative max-w-6xl mx-auto">
-        <h1 class="text-xl md:text-2xl font-bold text-stone-800 serif-font mb-2">🎨 디지털아트 <span class="text-stone-500 text-base md:text-lg font-normal">(digital-art v7.8)</span></h1>
+        <h1 class="text-xl md:text-2xl font-bold text-stone-800 serif-font mb-2">🎨 디지털아트 <span class="text-stone-500 text-base md:text-lg font-normal">(digital-art v7.9)</span></h1>
     </header>
 
     <main class="w-full max-w-7xl flex flex-col lg:flex-row gap-6 px-1 sm:px-3 flex-1">
@@ -556,14 +548,14 @@
                                 <button onclick="setTextColor('#F59E0B')" class="w-8 h-8 rounded-full bg-amber-500 border-2 border-white shadow-sm"></button>
                                 <button onclick="setTextColor('#10B981')" class="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></button>
                                 <button onclick="setTextColor('#3B82F6')" class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow-sm"></button>
-                                <input type="color" id="textColorPicker" class="color-picker-palette" value="#ffffff" title="원하는 색을 직접 고르세요">
+                                <button id="textColorPicker" type="button" onclick="openColorPalette('text')" class="color-picker-palette" data-color="#ffffff" title="원하는 색을 직접 고르세요" aria-label="글씨 색상 빠렛트 열기"></button>
                             </div>
                         </div>
                         
                         <div class="flex items-center gap-3 justify-between bg-stone-50 p-2 rounded-lg border border-stone-200">
                             <span class="text-stone-600 font-bold w-20 text-xs">글씨 테두리</span>
                             <input type="range" id="outlineSize" min="0" max="15" value="2" class="flex-1 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer">
-                            <input type="color" id="outlineColorPicker" class="color-picker-palette" value="#000000" title="원하는 테두리 색을 직접 고르세요">
+                            <button id="outlineColorPicker" type="button" onclick="openColorPalette('outline')" class="color-picker-palette" data-color="#000000" title="원하는 테두리 색을 직접 고르세요" aria-label="테두리 색상 빠렛트 열기"></button>
                         </div>
                     </div>
                 </div>
@@ -606,6 +598,31 @@
                 작품을 확인하실 수 있습니다.
             </p>
             <button onclick="document.getElementById('saveMessage').classList.add('hidden')" class="mt-8 bg-stone-800 text-white px-8 py-3 rounded-xl font-bold">확인</button>
+        </div>
+    </div>
+
+    <!-- 자체 색상 빠렛트 모달 (PC·휴대폰 동일하게 작동) -->
+    <div id="colorPaletteModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white p-6 rounded-3xl shadow-2xl max-w-sm w-full">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="colorPaletteTitle" class="text-xl font-bold text-stone-800">🎨 색상 선택</h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-stone-500">선택한 색</span>
+                    <div id="colorPalettePreview" class="w-10 h-10 rounded-full border-2 border-stone-300 shadow-sm" style="background-color: #ffffff;"></div>
+                </div>
+            </div>
+
+            <div id="colorPaletteGrid" class="grid grid-cols-6 gap-2 mb-4"></div>
+
+            <div class="flex gap-2 mb-4 items-center">
+                <label class="text-xs text-stone-600 font-bold w-20">직접 고르기</label>
+                <input type="color" id="colorPaletteCustom" value="#ffffff" class="flex-1 h-10 rounded-lg cursor-pointer border border-stone-300">
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="cancelColorPalette()" class="flex-1 bg-stone-200 text-stone-700 py-3 rounded-xl font-bold">취소</button>
+                <button onclick="confirmColorPalette()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl font-bold">설정</button>
+            </div>
         </div>
     </div>
 
@@ -1030,13 +1047,104 @@
         textSizeInput.oninput = (e) => { textConfig.size = e.target.value; document.getElementById('textSizeDisplay').innerText = e.target.value; requestDraw(); };
         outlineSizeInput.oninput = (e) => { textConfig.outlineWidth = e.target.value; requestDraw(); };
         
-        outlineColorPicker.oninput = (e) => { 
-            textConfig.outlineColor = e.target.value; 
-            requestDraw(); 
+        // ════════════════════════════════════════════════════
+        // 자체 색상 빠렛트 (PC·휴대폰에서 동일하게 작동)
+        // ════════════════════════════════════════════════════
+        const PALETTE_COLORS = [
+            // 1줄: 무채색 (시니어가 가장 많이 쓰는 검정·흰색·회색 계열)
+            '#000000', '#404040', '#808080', '#B0B0B0', '#E0E0E0', '#FFFFFF',
+            // 2줄: 빨강·주황 계열
+            '#7F1D1D', '#DC2626', '#EF4444', '#F87171', '#FCA5A5', '#FECACA',
+            // 3줄: 노랑·금색 계열  
+            '#92400E', '#D97706', '#F59E0B', '#FBBF24', '#FDE68A', '#FEF3C7',
+            // 4줄: 초록 계열
+            '#14532D', '#15803D', '#10B981', '#34D399', '#86EFAC', '#BBF7D0',
+            // 5줄: 파랑·보라 계열
+            '#1E3A8A', '#2563EB', '#3B82F6', '#60A5FA', '#7C3AED', '#A855F7'
+        ];
+
+        let _paletteTarget = null;      // 'text' 또는 'outline'
+        let _paletteSelected = null;    // 현재 빠렛트에서 고른 임시 색
+
+        // 빠렛트 그리드를 한 번만 그려둠
+        (function buildPaletteGrid() {
+            const grid = document.getElementById('colorPaletteGrid');
+            grid.innerHTML = '';
+            PALETTE_COLORS.forEach(color => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-12 h-12 rounded-lg border-2 border-stone-200 shadow-sm hover:border-amber-500 hover:scale-110 transition';
+                btn.style.backgroundColor = color;
+                btn.dataset.color = color;
+                btn.setAttribute('aria-label', '색상 ' + color);
+                btn.onclick = () => {
+                    _paletteSelected = color;
+                    document.getElementById('colorPalettePreview').style.backgroundColor = color;
+                    document.getElementById('colorPaletteCustom').value = color;
+                    // 선택한 칸 강조
+                    grid.querySelectorAll('button').forEach(b => {
+                        b.classList.remove('ring-4', 'ring-amber-500');
+                    });
+                    btn.classList.add('ring-4', 'ring-amber-500');
+                };
+                grid.appendChild(btn);
+            });
+        })();
+
+        // 직접 고르기(시스템 빠렛트)도 임시 선택값에 반영
+        document.getElementById('colorPaletteCustom').oninput = (e) => {
+            _paletteSelected = e.target.value;
+            document.getElementById('colorPalettePreview').style.backgroundColor = e.target.value;
         };
 
+        // 빠렛트 모달 열기
+        function openColorPalette(target) {
+            _paletteTarget = target;
+            const isText = (target === 'text');
+            const currentColor = isText ? textConfig.color : textConfig.outlineColor;
+            _paletteSelected = currentColor;
+
+            document.getElementById('colorPaletteTitle').innerText =
+                isText ? '🎨 글씨 색상' : '🖍️ 글씨 테두리 색';
+            document.getElementById('colorPalettePreview').style.backgroundColor = currentColor;
+            document.getElementById('colorPaletteCustom').value = currentColor;
+
+            // 기존 강조 표시 초기화
+            document.querySelectorAll('#colorPaletteGrid button').forEach(b => {
+                b.classList.remove('ring-4', 'ring-amber-500');
+                if (b.dataset.color && b.dataset.color.toLowerCase() === currentColor.toLowerCase()) {
+                    b.classList.add('ring-4', 'ring-amber-500');
+                }
+            });
+
+            document.getElementById('colorPaletteModal').classList.remove('hidden');
+        }
+
+        // 취소
+        function cancelColorPalette() {
+            document.getElementById('colorPaletteModal').classList.add('hidden');
+            _paletteTarget = null;
+            _paletteSelected = null;
+        }
+
+        // 설정(확정) — 임시 선택을 실제 글씨/테두리에 반영
+        function confirmColorPalette() {
+            if (!_paletteTarget || !_paletteSelected) {
+                cancelColorPalette();
+                return;
+            }
+            if (_paletteTarget === 'text') {
+                textConfig.color = _paletteSelected;
+                document.getElementById('textColorPicker').dataset.color = _paletteSelected;
+            } else {
+                textConfig.outlineColor = _paletteSelected;
+                document.getElementById('outlineColorPicker').dataset.color = _paletteSelected;
+            }
+            requestDraw();
+            cancelColorPalette();
+        }
+
         function setTextColor(c) { textConfig.color = c; requestDraw(); }
-        document.getElementById('textColorPicker').oninput = (e) => { setTextColor(e.target.value); };
 
         function applyFilter(f, btn) { currentFilter = f; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); requestDraw(); }
 
@@ -1049,7 +1157,7 @@
         }
 
         // ════════════════════════════════════════════════════
-        // 카카오톡 공유 (v7.8 — 시니어 친화 단순 흐름)
+        // 카카오톡 공유 (v7.9 — 시니어 친화 단순 흐름)
         // 핵심: 메뉴 탐색 ZERO, 화면 전환 ZERO, 3단계만
         // ════════════════════════════════════════════════════
 
@@ -1536,7 +1644,9 @@
 
         window.onload = () => {
             setCanvasRatio('16:9', document.querySelector('.ratio-btn'));
-            textConfig.outlineColor = outlineColorPicker.value;
+            // 빠렛트 버튼은 input이 아니라 button이라 data-color로 초기 색을 읽음
+            textConfig.outlineColor = outlineColorPicker.dataset.color || '#000000';
+            textConfig.color = document.getElementById('textColorPicker').dataset.color || '#ffffff';
         };
 
         /* ══════════════════════════════════════════
