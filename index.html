@@ -1397,14 +1397,18 @@
 
         // 유효한 구매 코드 해시 목록
         // 형식: { hash: "해시값", plan: "lifetime"|"event", permissions: ["digital",...], expires: "YYYY-MM-DD"|null }
-        // 새 코드 추가 시: 시트에 기록 + 여기에 해시 추가 (어르신 직접 관리)
+        // 새 코드 추가 시: 시트에 기록 + 여기에 해시 추가 (관리자 직접 관리)
+        // 주의: 코드 평문(예: 1234-5678-9012)을 주석에 절대 적지 말 것 (소스 노출 위험)
         const VALID_CODE_HASHES = [
-            // 마스터 코드 9999-9999-9999 (전체 권한)
-            { hash: "bed865c5f9b47662", plan: "lifetime", permissions: ["smile","sleep","digital","parking"], expires: null },
+            // 운영자 마스터 코드 (전체 권한) - 평문은 별도 비밀번호 관리자에 보관
+            { hash: "7a000b88c5345af9", plan: "lifetime", permissions: ["smile","sleep","digital","parking"], expires: null },
         ];
 
-        // 차단된 코드 (환불 등) - 여기에 추가하면 강제 차단됨
-        const BLOCKED_CODE_HASHES = [];
+        // 차단된 코드 (환불/노출/폐기 등) - 여기에 추가하면 강제 차단됨
+        const BLOCKED_CODE_HASHES = [
+            // [폐기됨] 구 마스터 코드 - 소스 노출로 인해 영구 차단
+            "bed865c5f9b47662",
+        ];
 
         // 이 앱이 요구하는 권한 (디지털아트)
         const REQUIRED_PERMISSION = "digital";

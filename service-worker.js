@@ -5,7 +5,7 @@
    - 캐시 기반 빠른 로딩
    ══════════════════════════════════════════ */
 
-const CACHE_NAME = 'digital-art-v7.6';
+const CACHE_NAME = 'digital-art-v7.7';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
