@@ -311,6 +311,39 @@
             font-weight: bold;
             font-size: 1rem;
         }
+        .smartstore-btn {
+            display: block;
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: #f59e0b;
+            color: #fff !important;
+            text-align: center;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-decoration: none !important;
+            font-size: 0.95rem;
+        }
+        .smartstore-btn .ss-sub {
+            display: block;
+            font-weight: 400;
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-top: 0.15rem;
+        }
+        .auth-code-fallback {
+            margin-top: 1.25rem;
+            text-align: left;
+        }
+        .auth-code-fallback summary {
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #a8a29e;
+            padding: 0.4rem 0;
+        }
+        .auth-code-fallback[open] summary {
+            color: #78716c;
+            margin-bottom: 0.5rem;
+        }
 
         /* ===== 카메라 모달 - 가로 모드(landscape) 대응 ===== */
         /* 기본(세로/PC)에서의 영상 박스 비율 */
@@ -358,35 +391,47 @@
 <body class="bg-stone-100 min-h-screen flex flex-col items-center py-6">
 
     <!-- ══════════════════════════════════════════
-         🔐 구매 코드 인증 화면
+         🎁 무료 나눔 + 후원 안내 화면
          ══════════════════════════════════════════ -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-box">
             <div class="auth-logo">🎨🖌️</div>
             <div class="auth-title">디지털아트</div>
-            <div class="auth-subtitle">구매하신 코드를 입력해주세요<br>숫자 12자리를 차례로 눌러주세요</div>
+            <div class="auth-subtitle">이 앱은 완전히 무료입니다<br>누구나 바로 사용하실 수 있어요</div>
 
-            <label class="auth-label" for="authCodeInput">구매 코드</label>
-            <input type="tel" inputmode="numeric" id="authCodeInput" class="auth-input"
-                   placeholder="1234-5678-9012"
-                   maxlength="14" autocomplete="off"
-                   oninput="onAuthInput(this)"
-                   onkeydown="if(event.key==='Enter') verifyAuthCode()" />
-            <div class="auth-hint">💡 대시(-)는 자동으로 붙어요. 숫자만 입력하세요.</div>
-
-            <div class="auth-error-msg" id="authError"></div>
-            <div id="authBlocked" style="display:none;"></div>
-
-            <button class="auth-submit" id="authSubmitBtn" onclick="verifyAuthCode()">
-                ✅ 코드 확인하고 시작하기
+            <button class="auth-submit" id="authSubmitBtn" onclick="startFreeAccess()">
+                🎁 무료로 바로 시작하기
             </button>
 
             <div class="auth-info-box">
-                <strong>🛒 구매는 어디서 하나요?</strong><br>
-                당근마켓, 크몽, 또는 운영자에게 직접 구매하실 수 있습니다.<br><br>
-                <strong>📞 코드 분실 / 문의</strong><br>
-                <a href="#" onclick="event.preventDefault(); alert('운영자에게 연락해주세요.\n카톡 또는 구매처로 문의하시면 확인 도와드립니다.');">여기를 눌러 문의하기</a>
+                <strong>☕ 도움이 되셨다면 후원해주세요</strong><br>
+                디지털아트는 앞으로도 계속 무료입니다.<br>
+                마음이 가시면, 커피 한 잔 값(2,000원부터)만큼<br>
+                <strong>자유롭게</strong> 후원해주시면 큰 힘이 됩니다.
+                <a href="#" onclick="event.preventDefault(); alert('후원 링크(카카오페이·토스)는 곧 열립니다!\n\n지금은 카톡 채널로 문의해주시면\n안내해드릴게요.');" class="smartstore-btn">
+                    ☕ 후원하기 (준비 중)
+                    <span class="ss-sub">카카오페이·토스 링크 곧 오픈</span>
+                </a>
+                <br>
+                <strong>📞 문의 / 사용법 안내</strong><br>
+                <a href="https://pf.kakao.com/_ugDsX" target="_blank" rel="noopener">카톡 채널 "smile365" 문의하기</a>
             </div>
+
+            <details class="auth-code-fallback">
+                <summary>강사님께 받은 코드가 있으신가요?</summary>
+                <label class="auth-label" for="authCodeInput">이용권 코드</label>
+                <input type="tel" inputmode="numeric" id="authCodeInput" class="auth-input"
+                       placeholder="1234-5678-9012"
+                       maxlength="14" autocomplete="off"
+                       oninput="onAuthInput(this)"
+                       onkeydown="if(event.key==='Enter') verifyAuthCode()" />
+                <div class="auth-hint">💡 대시(-)는 자동으로 붙어요. 숫자만 입력하세요.</div>
+                <div class="auth-error-msg" id="authError"></div>
+                <div id="authBlocked" style="display:none;"></div>
+                <button class="auth-submit" id="authCodeSubmitBtn" onclick="verifyAuthCode()" style="margin-top:0.5rem;">
+                    ✅ 코드 확인하기
+                </button>
+            </details>
 
             <div class="auth-legal">
                 <strong>⚠️ 이용 안내</strong>
@@ -1463,11 +1508,10 @@
 
         function showBlockedUI(remainMs) {
             const blockDiv = document.getElementById('authBlocked');
-            const submitBtn = document.getElementById('authSubmitBtn');
+            const submitBtn = document.getElementById('authCodeSubmitBtn');
             const input = document.getElementById('authCodeInput');
-            input.disabled = true;
-            submitBtn.disabled = true;
-            submitBtn.textContent = '🔒 일시 차단됨';
+            if (input) input.disabled = true;
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '🔒 일시 차단됨'; }
 
             function formatTime(ms) {
                 const min = Math.ceil(ms / 60000);
@@ -1500,6 +1544,17 @@
                     if (t) t.textContent = `약 ${formatTime(remain)} 남음`;
                 }
             }, 30000);
+        }
+
+        // 🎁 무료로 바로 시작하기
+        function startFreeAccess() {
+            localStorage.setItem(AUTH_KEY, JSON.stringify({
+                plan: 'free',
+                permissions: [REQUIRED_PERMISSION],
+                expires: null,
+                activatedAt: new Date().toISOString()
+            }));
+            document.getElementById('authOverlay').classList.add('hidden');
         }
 
         // 인증 코드 검증
@@ -1595,7 +1650,18 @@
         function checkAuthOnLoad() {
             try {
                 const saved = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
-                if (!saved || !saved.hash) {
+                if (!saved) {
+                    if (checkAuthBlock()) return;
+                    return; // 미인증 → 인증 화면 표시된 상태
+                }
+
+                // 무료 접속(코드 없이 시작)은 해시/만료 검사 없이 통과
+                if (saved.plan === 'free') {
+                    document.getElementById('authOverlay').classList.add('hidden');
+                    return;
+                }
+
+                if (!saved.hash) {
                     if (checkAuthBlock()) return;
                     return; // 미인증 → 인증 화면 표시된 상태
                 }
